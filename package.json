@@ -3,7 +3,7 @@
 	"title": "NexusFramework",
 	"description": "Adds NexusFramework support and functionality to Brackets.",
 	"homepage": "https://github.com/NexusTools/NexusFrameworkBrackets",
-	"keywords": ["nexustools", "framework", "brackets"],
+	"keywords": ["nexustools", "nexusframework", "framework", "brackets"],
 	"version": "0.0.1",
 	"author": "Stephen Hohner <steve@nexustools.net> (https://github.com/Steve4448)",
 	"licenses": [

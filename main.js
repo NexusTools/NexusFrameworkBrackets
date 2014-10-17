@@ -15,6 +15,7 @@ define(function(require, exports, module) {
 		helperType: "nhp"
 	};
 	
+	//TODO: Separate file for this maybe?
 	var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
 	CodeMirror.defineMode("nhp", function(config, parserConfig) {
 		var htmlMode = CodeMirror.getMode(config, "text/html");
@@ -123,7 +124,7 @@ define(function(require, exports, module) {
 	CodeMirror.defineMIME("text/nhp", "nhp");
 	
 	LanguageManager.defineLanguage("nhp", {
-		name: "NexusFramework Hypertext Processor",
+		name: "NHP",
 		mode: "nhp",
 		fileExtensions: ["nhp"]
 	});

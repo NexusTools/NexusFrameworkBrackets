@@ -25,39 +25,43 @@ define(function(require, exports, module) {
 		function dispatch(stream, state) {
 			var isNHP = state.curMode == nhpMode;
 			var isJS = state.curMode == jsMode;
-			if(stream.sol() && state.pending && state.pending != '"' && state.pending != "'")
-				state.pending = null;
+			//if(stream.sol() && state.pending && state.pending != '"' && state.pending != "'")
+			//	state.pending = null;
 			if(!isNHP && !isJS) {
 				if(stream.match(/<\?\w+/)) {
-					state.curMode = nhpMode;
-					state.curState = state.nhp;
-					return "meta";
-				} else if(stream.match("{{")) {
 					state.curMode = jsMode;
 					state.curState = state.js;
-					return "meta";
+					return "keyword";
+				} else if(stream.match("{{")) {
+					if(stream.peek() == "#") {
+						stream.next();
+						state.curMode = jsMode;
+						state.curState = state.js;
+						return "keyword";
+					} else {
+						state.curMode = jsMode;
+						state.curState = state.js;
+						return "keyword";
+					}
 				}
 				return htmlMode.token(stream, state.curState);
 			} else if(isNHP) {
+				/* NHP no longer has any special tokens to apply. */
+			} else if(isJS) {
 				if(state.nhp.tokenize == null && stream.match("?>")) {
 					state.curMode = htmlMode;
 					state.curState = state.html;
-					return "meta";
-				} else {
-					var ch = stream.next(); //Eat it all and render it as a string.
-					return "string";
-				}
-			} else if(isJS) {
-				if(stream.match("}}")) {
+					return "keyword";
+				} else if(stream.match("}}")) {
 					state.curMode = htmlMode;
 					state.curState = state.html;
-					return "meta";
+					return "keyword";
 				} else {
 					try { //TODO: Find out why exceptions occur...
 						return jsMode.token(stream, state.curState);
 					} catch(e) {
 						stream.next();
-						return "meta"
+						return "error"
 					}
 				}
 			}
@@ -73,8 +77,7 @@ define(function(require, exports, module) {
 					nhp: nhp,
 					js: js,
 					curMode: htmlMode,
-					curState: html,
-					pending: null
+					curState: html
 				};
 			},
 
@@ -97,8 +100,7 @@ define(function(require, exports, module) {
 					nhp: nhpNew,
 					js: jsNew,
 					curMode: state.curMode,
-					curState: cur,
-					pending: state.pending
+					curState: cur
 				};
 			},
 			
@@ -107,7 +109,7 @@ define(function(require, exports, module) {
 			indent: function(state, textAfter) {
 				if(state.curMode == jsMode) {
 					return jsMode.indent(state.js, textAfter);
-				} else if((state.curMode != nhpMode && /^\s*<\//.test(textAfter)) || (state.curMode == nhpMode && /^\?>/.test(textAfter)))
+				} else if(state.curMode != nhpMode)
 					return htmlMode.indent(state.html, textAfter);
 				return state.curMode.indent(state.curState, textAfter);
 			},
@@ -119,7 +121,7 @@ define(function(require, exports, module) {
 				};
 			}
 		};
-	}, "htmlmixed");
+	}, "htmlmixed", "clike");
 
 	CodeMirror.defineMIME("text/nhp", "nhp");
 	
